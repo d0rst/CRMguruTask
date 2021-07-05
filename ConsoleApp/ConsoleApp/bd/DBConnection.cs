@@ -1,11 +1,12 @@
 ﻿using System.Data.SqlClient;
+using System.Configuration;
 
 namespace ConsoleApp.bd
 {
     class DBConnection
     {
         private static string connectionString =
-            @"Data Source=.\SQLEXPRESS;Initial Catalog=worldbd;Integrated Security=True";
+            ConfigurationManager.ConnectionStrings["worldbd"].ConnectionString;
 
         public static SqlConnection dbConnect()
         {
