@@ -10,14 +10,15 @@ namespace ConsoleApp.console
     class ConsoleClient
     {
         private ConsoleTable table;
-        private CRUD crud;
+        private CRUDCountry crud;
         private API api;
 
         public ConsoleClient()
         {
-            crud = new CRUD();
+            crud = new CRUDCountry();
             api = new API();
-            table = new ConsoleTable("Название", "Код страны", "Столица", "Площадь", "Население", "Регион");
+            table = new ConsoleTable("Название", "Код страны", 
+                "Столица", "Площадь", "Население", "Регион");
         }
 
         public async Task ConsoleInputAsync()
@@ -39,35 +40,42 @@ namespace ConsoleApp.console
                             countryName.Length > 1 &&
                             Foo(countryName))
                         {
-                            var country = await api.GET(countryName);
-                            if (country == null)
+                            try
                             {
-                                Console.WriteLine("Ошибка! Страна не найдена!");
-                                break;
-                            }
+                                var country = await api.GET(countryName);
+                                if (country == null)
+                                {
+                                    Console.WriteLine("Ошибка! Страна не найдена!");
+                                    break;
+                                }
 
-                            Console.WriteLine("Сохранить информацию в базу?");
-                            Console.WriteLine("y - Да");
-                            Console.WriteLine("n - Нет");
+                                Console.WriteLine("Сохранить информацию в базу?");
+                                Console.WriteLine("y - Да");
+                                Console.WriteLine("n - Нет");
 
-                            switch (Console.ReadLine())
-                            {
-                                case "y":
-                                    int cityId = crud.CreateCity(country.capital);
-                                    int regionId = crud.CreateRegion(country.region);
-                                    if (regionId == -1 && cityId == -1)
-                                    {
-                                        Console.WriteLine("error!");
+                                switch (Console.ReadLine())
+                                {
+                                    case "y":                                       
+                                        int cityId = crud.CreateCity(country.capital);
+                                        int regionId = crud.CreateRegion(country.region);
+                                        if (regionId == -1 && cityId == -1)
+                                        {
+                                            Console.WriteLine("error!");
+                                            break;
+                                        }
+                                        crud.CreateCountry(country, cityId, regionId);
                                         break;
-                                    }
-                                    crud.CreateCountry(country, cityId, regionId);
-                                    break;
-                                case "n":
-                                    Console.WriteLine("Отмена!");
-                                    break;
-                                default:
-                                    Console.WriteLine("Неверный ввод!");
-                                    break;
+                                    case "n":
+                                        Console.WriteLine("Отмена!");
+                                        break;
+                                    default:
+                                        Console.WriteLine("Неверный ввод!");
+                                        break;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
                             }
 
                         }
